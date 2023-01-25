@@ -15,6 +15,10 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
+    - uses: GuillaumeFalourd/setup-windows10-sdk-action@v1.11
+      with:
+        sdk-version: 22621
+
     - name: Cache Vulkan SDK
       id: cache-vulkan-sdk
       uses: actions/cache@v1
