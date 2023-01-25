@@ -1,15 +1,16 @@
-name: CMake
+name: MSBuild
 
 on:
   push:
     branches: [ "dx11" ]
 
 env:
-  BUILD_TYPE: Release
+  SOLUTION_FILE_PATH: gtaRenderHook.sln
+  BUILD_CONFIGURATION: Release
 
 jobs:
-  Windows:
-    runs-on: windows-2019
+  build:
+    runs-on: windows-latest
 
     steps:
     - uses: actions/checkout@v3
@@ -28,13 +29,13 @@ jobs:
         $installer = Start-Process -FilePath VulkanSDK.exe -Wait -PassThru -ArgumentList @("/S");
         $installer.WaitForExit();
 
-    - name: Include Vulkan
-      run: |
-        Copy-Item -Path 'C:\VulkanSDK\1.2.189.0\Include\vulkan' -Destination '${{github.workspace}}' -Recurse
-        Copy-Item -Path 'C:\VulkanSDK\1.2.189.0\Include\vulkan' -Destination '${{github.workspace}}\gtaRenderHook' -Recurse
+    - name: Add MSBuild to PATH
+      uses: microsoft/setup-msbuild@v1.0.2
 
-    - name: Configure CMake
-      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+    - name: Restore NuGet packages
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      run: nuget restore ${{env.SOLUTION_FILE_PATH}}
 
     - name: Build
-      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      run: msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} /p:useenv=true /p:Include="C:\VulkanSDK\1.2.189.0\Include\" ${{env.SOLUTION_FILE_PATH}} 
