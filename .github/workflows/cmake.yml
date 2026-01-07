@@ -18,7 +18,7 @@ jobs:
     runs-on: windows-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v6
 
       - name: Get commit hash
         run: echo "CommitHash=$(git rev-parse --short=7 HEAD)" >> $env:GITHUB_ENV
@@ -93,19 +93,19 @@ jobs:
         run: cmake --build . --config $BUILD_TYPE --target gta_3_render_hook gta_vc_render_hook gta_sa_render_hook
 
       - name: Upload artifacts - GTA 3
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v6
         with:
           name: gta3_rh-${{env.CommitHash}}
           path: ${{runner.workspace}}/artifacts/gta3
 
       - name: Upload artifacts - GTA VC
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v6
         with:
           name: gtavc_rh-${{env.CommitHash}}
           path: ${{runner.workspace}}/artifacts/gtavc
 
       - name: Upload artifacts - GTA SA
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v6
         with:
           name: gtasa_rh-${{env.CommitHash}}
           path: ${{runner.workspace}}/artifacts/gtasa
