@@ -15,7 +15,7 @@ permissions:
 
 jobs:
   build:
-    runs-on: windows-latest
+    runs-on: windows-2022
 
     steps:
       - uses: actions/checkout@v6
@@ -47,10 +47,10 @@ jobs:
         uses: microsoft/setup-msbuild@v1.1
 
       - name: Restore from cache and install vcpkg
-        uses: lukka/run-vcpkg@v10.7
+        uses: lukka/run-vcpkg@v11.5
         with:
           setupOnly: true
-          vcpkgGitCommitId: 1e9facc7992107ad639b4dcc87bd9a7ade1594e8
+          vcpkgGitCommitId: b3dd708d38df5c856fe1c18dc0d59ab771f93921
       - run: |
           $VCPKG_ROOT/vcpkg install @response_file.txt
         shell: bash
