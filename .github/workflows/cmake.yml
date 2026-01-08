@@ -18,7 +18,7 @@ jobs:
     runs-on: windows-2022
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v2
 
       - name: Get commit hash
         run: echo "CommitHash=$(git rev-parse --short=7 HEAD)" >> $env:GITHUB_ENV
@@ -32,7 +32,7 @@ jobs:
 
       - name: Cache Vulkan SDK
         id: cache-vulkan-sdk
-        uses: actions/cache@v5
+        uses: actions/cache@v4
         with:
           path: "C:\\VulkanSDK\\1.2.189.0"
           key: vulkan-sdk-1.2.189.0
@@ -47,10 +47,10 @@ jobs:
         uses: microsoft/setup-msbuild@v1.1
 
       - name: Restore from cache and install vcpkg
-        uses: lukka/run-vcpkg@v11.5
+        uses: lukka/run-vcpkg@v10.7
         with:
           setupOnly: true
-          vcpkgGitCommitId: eeb00f1ecba68f68fad6a1ee93eec77921b3146e
+          vcpkgGitCommitId: 1e9facc7992107ad639b4dcc87bd9a7ade1594e8
       - run: |
           $VCPKG_ROOT/vcpkg install @response_file.txt
         shell: bash
@@ -93,19 +93,34 @@ jobs:
         run: cmake --build . --config $BUILD_TYPE --target gta_3_render_hook gta_vc_render_hook gta_sa_render_hook
 
       - name: Upload artifacts - GTA 3
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v4
         with:
           name: gta3_rh-${{env.CommitHash}}
           path: ${{runner.workspace}}/artifacts/gta3
 
       - name: Upload artifacts - GTA VC
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v4
         with:
           name: gtavc_rh-${{env.CommitHash}}
           path: ${{runner.workspace}}/artifacts/gtavc
 
       - name: Upload artifacts - GTA SA
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v4
         with:
           name: gtasa_rh-${{env.CommitHash}}
           path: ${{runner.workspace}}/artifacts/gtasa
+
+      - name: Compress artifacts
+        uses: vimtor/action-zip@v1.1
+        with:
+          files: '${{runner.workspace}}/artifacts/gta3 ${{runner.workspace}}/artifacts/gtavc ${{runner.workspace}}/artifacts/gtasa'
+          dest: "renderhook-${{env.CommitHash}}.zip"
+
+      - name: GitHub release
+        uses: "marvinpinto/action-automatic-releases@latest"
+        with:
+          repo_token: "${{secrets.GITHUB_TOKEN}}"
+          automatic_release_tag: "latest"
+          prerelease: true
+          title: "GTA RenderHook ${{env.CommitHash}}"
+          files: "renderhook-${{env.CommitHash}}.zip"
